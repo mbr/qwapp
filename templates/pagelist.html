@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}List of pages{% endblock %}
+
+{% block body %}
+<ul>
+{% for page in pages %}
+<li><a href="{{url_for('show_page', name = page)}}" title="{{page}}">{{page}}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}
