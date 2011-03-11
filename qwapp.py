@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 # coding=utf8
 
-from flask import Flask, render_template, abort, url_for, redirect
+from functools import wraps
+
+from flask import Flask, render_template, abort, url_for, redirect, session
 from flaskext.markdown import Markdown
 
 from db import WikiDb, FileNotFoundException
 import forms
 
 import defconfig
+import password
 
 
 def make_wiki_link(name, base, end):
@@ -36,13 +39,39 @@ special_names = {
 }
 
 
-@app.route('/list/pages/')
+def require_login(f):
+	@wraps(f)
+	def decorator(*args, **kwargs):
+		if app.config['PASSWORD_HASH']:
+			if not 'logged_in' in session or not session['logged_in']:
+				return redirect(url_for('login'))
+		return f(*args, **kwargs)
+	return decorator
+
+
+# login handling
+@app.route('/w/login/', methods = ('GET', 'POST'))
+def login():
+	form = forms.LoginForm()
+	if form.validate_on_submit():
+		if password.check_password(form.password.data, app.config['PASSWORD_HASH']):
+			# set the login value
+			session['logged_in'] = True
+			session.permanent = True
+
+			return redirect(url_for('show_special', name = 'index'))
+	return render_template('loginform.html', form = form)
+
+
+@app.route('/w/list-pages/')
+@require_login
 def list_pages():
 	return render_template('pagelist.html', pages = db.list_pages())
 
 
 @app.route('/')
 @app.route('/s/<name>/')
+@require_login
 def show_special(name = 'index'):
 	try:
 		page = db.get_special(name)
@@ -52,6 +81,7 @@ def show_special(name = 'index'):
 
 
 @app.route('/s/<name>/edit/', methods = ('GET', 'POST'))
+@require_login
 def edit_special(name):
 	try:
 		page = db.get_special(name)
@@ -72,6 +102,7 @@ def edit_special(name):
 	return render_template('editpage.html', form = form, preview = preview)
 
 
+@require_login
 @app.route('/<name>/edit/', methods = ('GET', 'POST'))
 def edit_page(name):
 	try:
@@ -97,6 +128,7 @@ def edit_page(name):
 
 
 @app.route('/<name>/')
+@require_login
 def show_page(name):
 	try:
 		page = db.get_page(name)
