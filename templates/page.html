@@ -3,6 +3,8 @@
 {% block title %}{{title}}{% endblock %}
 
 {% block body %}
+<a href="{{edit_link}}" title="edit {{title}}">edit</a>
+<hr>
 <h1>{{title}}</h1>
 <div>
 {{body|markdown}}

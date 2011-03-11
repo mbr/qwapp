@@ -44,7 +44,7 @@ def show_special(name = 'index'):
 		page = db.get_special(name)
 	except FileNotFoundException:
 		redirect(url_for('edit_special', name = name))
-	return render_template('page.html', body = page, title = special_names[name])
+	return render_template('page.html', body = page, title = special_names[name], edit_link = url_for('edit_special', name = name))
 
 
 @app.route('/s/<name>/edit/', methods = ('GET', 'POST'))
@@ -98,7 +98,7 @@ def show_page(name):
 		page = db.get_page(name)
 	except FileNotFoundException:
 		return redirect(url_for('edit_page', name = name))
-	return render_template('page.html', body = page, title = name)
+	return render_template('page.html', body = page, title = name, edit_link = url_for('edit_page', name = name))
 
 
 if '__main__' == __name__:
