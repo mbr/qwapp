@@ -46,7 +46,7 @@ class WikiDb(object):
 		return self.get_file('pages/%s.markdown' % name)
 
 	def get_special(self, name):
-		return self.get_file('special/index.markdown')
+		return self.get_file('special/%s.markdown' % name)
 
 	def list_pages(self):
 		mode, pages_sha = self.current_tree['pages']
@@ -55,6 +55,9 @@ class WikiDb(object):
 
 	def update_page(self, name, data, commit_msg):
 		self._update_file(name, 'pages', '%s.markdown' % name.encode('utf-8'), data, commit_msg)
+
+	def update_special(self, name, data, commit_msg):
+		self._update_file(name, 'special', '%s.markdown' % name.encode('utf-8'), data, commit_msg)
 
 	def _update_file(self, name, subdir, filename, data, commit_msg):
 		# first, create a new blob for the data

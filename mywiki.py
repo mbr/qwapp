@@ -47,8 +47,25 @@ def show_special(name = 'index'):
 	return render_template('page.html', body = page, title = special_names[name])
 
 
+@app.route('/s/<name>/edit/', methods = ('GET', 'POST'))
 def edit_special(name):
-	pass
+	try:
+		page = db.get_special(name)
+	except FileNotFoundException:
+		page = None
+
+	form = forms.EditPageForm(body = page)
+	preview = None
+
+	if form.validate_on_submit():
+		if form.preview.data:
+			preview = form.body.data
+		else:
+			db.update_special(name, form.body.data, form.commit_msg.data)
+
+			return redirect(url_for('show_special', name = name))
+
+	return render_template('editpage.html', form = form, preview = preview)
 
 
 @app.route('/<name>/edit/', methods = ('GET', 'POST'))
