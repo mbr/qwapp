@@ -51,6 +51,9 @@ class WikiDb(object):
 			yield name[:-len('.markdown')]
 
 	def update_page(self, name, data, commit_msg):
+		self._update_file(name, 'pages', '%s.markdown' % name.encode('utf-8'), data, commit_msg)
+
+	def _update_file(self, name, subdir, filename, data, commit_msg):
 		# first, create a new blob for the data
 		blob = Blob.from_string(data.encode('utf-8'))
 
@@ -58,12 +61,12 @@ class WikiDb(object):
 		mode = stat.S_IFREG | stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
 
 		# fetch the old tree object, add new page
-		pages_tree = _walk_git_repo_tree(self.repo, self.current_tree, 'pages')
-		pages_tree.add(mode, '%s.markdown' % name.encode('utf-8'), blob.id)
+		pages_tree = _walk_git_repo_tree(self.repo, self.current_tree, subdir)
+		pages_tree.add(mode, filename, blob.id)
 
 		# create new root tree
 		tree = self.current_tree
-		tree.add(stat.S_IFDIR, 'pages', pages_tree.id)
+		tree.add(stat.S_IFDIR, subdir, pages_tree.id)
 
 		# create commit
 		user = os.getlogin()
