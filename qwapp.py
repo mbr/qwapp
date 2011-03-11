@@ -9,17 +9,25 @@ import forms
 
 import defconfig
 
-app = Flask('qwapp')
-app.config.from_object(defconfig)
 
 def make_wiki_link(name, base, end):
 	return url_for('show_page', name = name)
 
+
+app = Flask('qwapp')
+
+# load a default config
+app.config.from_object(defconfig)
+
+# load user config from an envvar
+app.config.from_envvar('QWAPP_CONFIG')
+
 md = Markdown(app, safe_mode = False,
-                   extensions = ['wikilinks'],
-                   extension_configs = {
-                       'wikilinks': [('build_url', make_wiki_link)]
-                   })
+				   extensions = ['wikilinks'],
+				   extension_configs = {
+					   'wikilinks': [('build_url', make_wiki_link)]
+				   })
+
 
 db = WikiDb(app.config['REPOSITORY_PATH'])
 
