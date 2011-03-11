@@ -19,3 +19,8 @@ def check_password(password, pwdata):
 	salt = pwdata[:digest_len]
 	pwhash = pwdata[digest_len:]
 	return hash_password(password, salt) == pwdata
+
+if '__main__' == __name__:
+	import sys
+
+	print hash_password(sys.argv[1])
