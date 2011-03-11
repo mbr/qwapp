@@ -20,6 +20,9 @@ def _walk_git_repo_tree(repo, tree, path):
 			return repo[sha]
 	return repo[sha]
 
+class WikiDbException(Exception): pass
+class FileNotFoundException(WikiDbException): pass
+
 class WikiDb(object):
 	def __init__(self, repopath, head = 'refs/heads/master'):
 		self.repo = Repo(repopath)
@@ -37,7 +40,7 @@ class WikiDb(object):
 	def get_file(self, path):
 		try:
 			return _walk_git_repo_tree(self.repo, self.current_tree, path).as_raw_string()
-		except KeyError: return None
+		except KeyError: raise FileNotFoundException('could not find %r' % path)
 
 	def get_page(self, name):
 		return self.get_file('pages/%s.markdown' % name)
