@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit page: {{title}}{% endblock %}
+
+{% block body %}
+{% if preview %}
+<div>Note: Changes have not been saved yet!</div>
+<h1>{{title}}</h1>
+<div>
+{{preview|markdown}}
+</div>
+{% endif %}
+
+<form action="." method="post">
+{{form.csrf}}
+
+{% if form.errors %}
+<ul>
+{% for field, errors in form.errors.iteritems() %}
+	{% for error in errors %}
+		<li>{{field}}: {{error}}</li>
+	{% endfor %}
+{% endfor %}
+</ul>
+{% endif %}
+
+{{form.body(rows = 30, cols = 80)}}
+<br>
+{{form.commit_msg.label}}: 
+{{form.commit_msg}}
+
+{{form.preview}}
+{{form.save}}
+</form>
+{% endblock %}

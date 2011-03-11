@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # coding=utf8
 
-from flask import Flask, render_template, abort, url_for
+from flask import Flask, render_template, abort, url_for, redirect
 from flaskext.markdown import Markdown
 
 from db import WikiDb
+import forms
 
 REPOSITORY_PATH = './wiki'
 DEBUG = True
@@ -37,6 +38,24 @@ def index():
 def list_pages():
 	return render_template('pagelist.html', pages = db.list_pages())
 
+@app.route('/<name>/edit/', methods = ('GET', 'POST'))
+def edit_page(name):
+	page = db.get_page(name)
+	form = forms.EditPageForm(body = page)
+	preview = None
+
+	if form.validate_on_submit():
+		if form.preview.data:
+			# simply display preview
+			preview = form.body.data
+		else:
+			# save the new page
+			db.update_page(name, form.body.data, form.commit_msg.data)
+
+			# redirect to page view
+			return redirect(url_for('show_page', name = name))
+
+	return render_template('editpage.html', form = form, preview = preview)
 
 
 @app.route('/<name>/')
