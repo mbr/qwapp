@@ -7,14 +7,10 @@ from flaskext.markdown import Markdown
 from db import WikiDb, FileNotFoundException
 import forms
 
-REPOSITORY_PATH = './wiki'
-DEBUG = True
-SECRET_KEY = 'development key'
-PASSWORD = 'devpass'
-
+import defconfig
 
 app = Flask('mywiki')
-app.config.from_object(__name__)
+app.config.from_object(defconfig)
 
 def make_wiki_link(name, base, end):
 	return url_for('show_page', name = name)
