@@ -27,16 +27,29 @@ md = Markdown(app, safe_mode = False,
 
 db = WikiDb(app.config['REPOSITORY_PATH'])
 
-
-@app.route('/')
-def index():
-	page = db.get_special('index.markdown')
-	return render_template('page.html', body = page, title = 'Welcome')
+special_names = {
+	'index': 'Welcome',
+}
 
 
 @app.route('/list/pages/')
 def list_pages():
 	return render_template('pagelist.html', pages = db.list_pages())
+
+
+@app.route('/')
+@app.route('/s/<name>/')
+def show_special(name = 'index'):
+	try:
+		page = db.get_special(name)
+	except FileNotFoundException:
+		redirect(url_for('edit_special', name = name))
+	return render_template('page.html', body = page, title = special_names[name])
+
+
+def edit_special(name):
+	pass
+
 
 @app.route('/<name>/edit/', methods = ('GET', 'POST'))
 def edit_page(name):
