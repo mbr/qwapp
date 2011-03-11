@@ -1,0 +1,1 @@
+qwapp ('quick wiki app') is a web-application aimed at giving you a simple, git-based wiki fast. It has almost no features and at this point, there is probably only one person in the world that finds this useful: me.
