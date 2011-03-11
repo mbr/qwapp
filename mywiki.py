@@ -4,7 +4,7 @@
 from flask import Flask, render_template, abort, url_for, redirect
 from flaskext.markdown import Markdown
 
-from db import WikiDb
+from db import WikiDb, FileNotFoundException
 import forms
 
 REPOSITORY_PATH = './wiki'
@@ -40,7 +40,11 @@ def list_pages():
 
 @app.route('/<name>/edit/', methods = ('GET', 'POST'))
 def edit_page(name):
-	page = db.get_page(name)
+	try:
+		page = db.get_page(name)
+	except FileNotFoundException:
+		page = None
+
 	form = forms.EditPageForm(body = page)
 	preview = None
 
@@ -60,8 +64,10 @@ def edit_page(name):
 
 @app.route('/<name>/')
 def show_page(name):
-	page = db.get_page(name)
-	if not page: abort(404)
+	try:
+		page = db.get_page(name)
+	except FileNotFoundException:
+		return redirect(url_for('edit_page', name = name))
 	return render_template('page.html', body = page, title = name)
 
 
