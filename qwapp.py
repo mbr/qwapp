@@ -9,7 +9,7 @@ import forms
 
 import defconfig
 
-app = Flask('mywiki')
+app = Flask('qwapp')
 app.config.from_object(defconfig)
 
 def make_wiki_link(name, base, end):
