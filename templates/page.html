@@ -3,7 +3,9 @@
 {% block title %}{{title}}{% endblock %}
 
 {% block body %}
-<a href="{{edit_link}}" title="edit {{title}}">edit</a>
+<a href="{{edit_link}}" title="edit {{title}}">edit</a> |
+<a href="{{url_for('show_special', name = 'index')}}" title="index page">home</a> |
+<a href="{{url_for('list_pages')}}" title="list all page">list</a>
 <hr>
 <h1>{{title}}</h1>
 <div>
