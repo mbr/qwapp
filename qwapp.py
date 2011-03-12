@@ -5,6 +5,7 @@ from functools import wraps
 
 from flask import Flask, render_template, abort, url_for, redirect, session
 from flaskext.markdown import Markdown
+from flaskext.cache import Cache
 
 from db import WikiDb, FileNotFoundException
 import forms
@@ -38,6 +39,7 @@ special_names = {
 	'index': 'Welcome',
 }
 
+cache = Cache(app)
 
 def require_login(f):
 	@wraps(f)
@@ -65,6 +67,7 @@ def login():
 
 @app.route('/w/list-pages/')
 @require_login
+@cache.cached()
 def list_pages():
 	return render_template('pagelist.html', pages = db.list_pages())
 
@@ -72,6 +75,7 @@ def list_pages():
 @app.route('/')
 @app.route('/s/<name>/')
 @require_login
+@cache.cached()
 def show_special(name = 'index'):
 	try:
 		page = db.get_special(name)
@@ -97,6 +101,8 @@ def edit_special(name):
 		else:
 			db.update_special(name, form.body.data, form.commit_msg.data)
 
+			# invalidate cache
+			cache.delete('view/%s' % url_for('show_special', name = name))
 			return redirect(url_for('show_special', name = name))
 
 	return render_template('editpage.html', form = form, preview = preview)
@@ -122,6 +128,8 @@ def edit_page(name):
 			db.update_page(name, form.body.data, form.commit_msg.data)
 
 			# redirect to page view
+			cache.delete('view/%s' % url_for('show_page', name = name))
+			cache.delete('view/%s' % url_for('list_pages'))
 			return redirect(url_for('show_page', name = name))
 
 	return render_template('editpage.html', form = form, preview = preview)
@@ -129,6 +137,7 @@ def edit_page(name):
 
 @app.route('/<name>/')
 @require_login
+@cache.cached()
 def show_page(name):
 	try:
 		page = db.get_page(name)
