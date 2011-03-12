@@ -4,6 +4,7 @@
 
 {% block body %}
 <a href="{{edit_link}}" title="edit {{title}}">edit</a> |
+{% if delete_link %}<a href="{{delete_link}}" title="edit {{title}}">delete</a> |{%endif %}
 <a href="{{url_for('show_special', name = 'index')}}" title="index page">home</a> |
 <a href="{{url_for('list_pages')}}" title="list all page">list</a>
 <hr>

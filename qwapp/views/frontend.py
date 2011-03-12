@@ -147,4 +147,4 @@ def show_page(name):
 		page = current_app.db.get_page(name)
 	except FileNotFoundException:
 		return redirect(url_for('edit_page', name = name))
-	return render_template('page.html', body = page, title = name, edit_link = url_for('edit_page', name = name))
+	return render_template('page.html', body = page, title = name, edit_link = url_for('edit_page', name = name), delete_link = url_for('delete_page', name = name))
