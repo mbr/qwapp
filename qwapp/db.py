@@ -40,6 +40,16 @@ class WikiDb(object):
 	def current_tree(self):
 		return self.repo[self.current_commit.tree]
 
+	@property
+	def wiki_user(self):
+		try:
+			user = os.getlogin()
+		except OSError:
+			user = 'wiki.unknown'
+		addr = '%s@%s' % (user, socket.gethostname())
+
+		return email.utils.formataddr((user, addr))
+
 	def get_file(self, path):
 		try:
 			return _walk_git_repo_tree(self.repo, self.current_tree, path).as_raw_string()
@@ -75,16 +85,10 @@ class WikiDb(object):
 		tree.add(stat.S_IFDIR, subdir, pages_tree.id)
 
 		# create commit
-		try:
-			user = os.getlogin()
-		except OSError:
-			user = 'wiki.unknown'
-		addr = '%s@%s' % (user, socket.gethostname())
-
 		commit = Commit()
 		commit.parents = [self.current_commit.id]
 		commit.tree = tree.id
-		commit.author = commit.committer = email.utils.formataddr((user, addr))
+		commit.author = commit.committer = self.wiki_user
 		commit.commit_time =  commit.author_time = int(time.time())
 		commit.commit_timezone = commit.author_timezone = parse_timezone(time.timezone)[0]
 		commit.encoding = 'UTF-8'
