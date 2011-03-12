@@ -9,6 +9,11 @@ class EditPageForm(Form):
 	preview = SubmitField(u'Preview')
 	save = SubmitField(u'Save')
 
+
 class LoginForm(Form):
 	password = PasswordField(u'Password')
 	login = SubmitField(u'Login')
+
+
+class DeletePageForm(Form):
+	delete_button = SubmitField(u'Yes, delete it!')

@@ -3,7 +3,7 @@
 
 from functools import wraps
 
-from flask import Module, render_template, abort, url_for, redirect, session, current_app, request
+from flask import Module, render_template, abort, url_for, redirect, session, current_app, request, abort
 
 from ..db import FileNotFoundException
 from .. import password, forms
@@ -120,6 +120,23 @@ def edit_page(name):
 			return redirect(url_for('show_page', name = name))
 
 	return render_template('editpage.html', form = form, preview = preview)
+
+
+@require_login
+@frontend.route('/<name>/delete/', methods = ('GET', 'POST'))
+def delete_page(name):
+	try:
+		page = current_app.db.get_page(name)
+	except FileNotFoundException:
+		abort(404)
+
+	form = forms.DeletePageForm()
+
+	if form.validate_on_submit():
+		current_app.db.delete_page(name)
+		return redirect(url_for('show_special', name = 'index'))
+
+	return render_template('deletepage.html', form = form, title = name)
 
 
 @frontend.route('/<name>/')

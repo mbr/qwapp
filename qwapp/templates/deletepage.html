@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete page: {{title}}{% endblock %}
+
+{% block body %}
+Do you really want to delete the page &quot;{{title}}&quot;?
+<form action="." method="post">
+{{form.csrf}}
+{{form.delete_button}}
+</form>
+{% endblock %}
