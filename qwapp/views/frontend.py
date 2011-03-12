@@ -3,51 +3,42 @@
 
 from functools import wraps
 
-from flask import render_template, abort, url_for, redirect, session
-from flaskext.markdown import Markdown
-from flaskext.cache import Cache
+from flask import Module, render_template, abort, url_for, redirect, session, current_app, request
 
-from db import WikiDb, FileNotFoundException
-import forms
+from ..db import FileNotFoundException
+from .. import password, forms
 
-
-from qwapp import app
-
-import password
-
-special_names = {
-	'index': 'Welcome',
-}
-
-def make_wiki_link(name, base, end):
-	return url_for('show_page', name = name)
-
-cache = Cache(app)
-md = Markdown(app, safe_mode = False,
-				   extensions = ['wikilinks'],
-				   extension_configs = {
-					   'wikilinks': [('build_url', make_wiki_link)]
-				   })
-
-
-db = WikiDb(app.config['REPOSITORY_PATH'])
+frontend = Module(__name__)
 
 def require_login(f):
 	@wraps(f)
-	def decorator(*args, **kwargs):
-		if app.config['PASSWORD_HASH']:
+	def decorated_function(*args, **kwargs):
+		if current_app.config['PASSWORD_HASH']:
 			if not 'logged_in' in session or not session['logged_in']:
 				return redirect(url_for('login'))
 		return f(*args, **kwargs)
-	return decorator
+	return decorated_function
 
 
-# login handling
-@app.route('/w/login/', methods = ('GET', 'POST'))
+def cached(f):
+	@wraps(f)
+	def decorated_function(*args, **kwargs):
+		cache_key = 'view/%s' % request.path
+
+		rv = current_app.cache.get(cache_key)
+		if rv is None:
+			rv = f(*args, **kwargs)
+			current_app.cache.set(cache_key, rv)
+		return rv
+
+	return decorated_function
+
+
+@frontend.route('/w/login/', methods = ('GET', 'POST'))
 def login():
 	form = forms.LoginForm()
 	if form.validate_on_submit():
-		if password.check_password(form.password.data, app.config['PASSWORD_HASH']):
+		if password.check_password(form.password.data, current_app.config['PASSWORD_HASH']):
 			# set the login value
 			session['logged_in'] = True
 			session.permanent = True
@@ -56,30 +47,34 @@ def login():
 	return render_template('loginform.html', form = form)
 
 
-@app.route('/w/list-pages/')
+@frontend.route('/w/list-pages/')
 @require_login
-@cache.cached()
+@cached
 def list_pages():
-	return render_template('pagelist.html', pages = db.list_pages())
+	return render_template('pagelist.html', pages = current_app.db.list_pages())
 
 
-@app.route('/')
-@app.route('/s/<name>/')
+@frontend.route('/')
+@frontend.route('/s/<name>/')
 @require_login
-@cache.cached()
+@cached
 def show_special(name = 'index'):
+	special_names = {
+		'index': 'Welcome',
+	}
+
 	try:
-		page = db.get_special(name)
+		page = current_app.db.get_special(name)
 	except FileNotFoundException:
 		redirect(url_for('edit_special', name = name))
 	return render_template('page.html', body = page, title = special_names[name], edit_link = url_for('edit_special', name = name))
 
 
-@app.route('/s/<name>/edit/', methods = ('GET', 'POST'))
+@frontend.route('/s/<name>/edit/', methods = ('GET', 'POST'))
 @require_login
 def edit_special(name):
 	try:
-		page = db.get_special(name)
+		page = current_app.db.get_special(name)
 	except FileNotFoundException:
 		page = None
 
@@ -90,7 +85,7 @@ def edit_special(name):
 		if form.preview.data:
 			preview = form.body.data
 		else:
-			db.update_special(name, form.body.data, form.commit_msg.data)
+			current_app.db.update_special(name, form.body.data, form.commit_msg.data)
 
 			# invalidate cache
 			cache.delete('view/%s' % url_for('show_special', name = name))
@@ -100,10 +95,10 @@ def edit_special(name):
 
 
 @require_login
-@app.route('/<name>/edit/', methods = ('GET', 'POST'))
+@frontend.route('/<name>/edit/', methods = ('GET', 'POST'))
 def edit_page(name):
 	try:
-		page = db.get_page(name)
+		page = current_app.db.get_page(name)
 	except FileNotFoundException:
 		page = None
 
@@ -116,7 +111,7 @@ def edit_page(name):
 			preview = form.body.data
 		else:
 			# save the new page
-			db.update_page(name, form.body.data, form.commit_msg.data)
+			current_app.db.update_page(name, form.body.data, form.commit_msg.data)
 
 			# redirect to page view
 			cache.delete('view/%s' % url_for('show_page', name = name))
@@ -126,12 +121,12 @@ def edit_page(name):
 	return render_template('editpage.html', form = form, preview = preview)
 
 
-@app.route('/<name>/')
+@frontend.route('/<name>/')
 @require_login
-@cache.cached()
+@cached
 def show_page(name):
 	try:
-		page = db.get_page(name)
+		page = current_app.db.get_page(name)
 	except FileNotFoundException:
 		return redirect(url_for('edit_page', name = name))
 	return render_template('page.html', body = page, title = name, edit_link = url_for('edit_page', name = name))
