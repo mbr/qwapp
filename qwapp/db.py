@@ -78,15 +78,15 @@ class WikiDb(object):
 		except KeyError: raise FileNotFoundException('could not find %r' % path)
 
 	def get_page(self, name):
-		return self.get_file('pages/%s.markdown' % name)
+		return self.get_file('pages/%s.markdown' % name).decode('utf-8')
 
 	def get_special(self, name):
-		return self.get_file('special/%s.markdown' % name)
+		return self.get_file('special/%s.markdown' % name).decode('utf-8')
 
 	def list_pages(self):
 		mode, pages_sha = self.current_tree['pages']
 		for name, mode, sha in self.repo[pages_sha].iteritems():
-			yield name[:-len('.markdown')]
+			yield name[:-len('.markdown')].decode('utf-8')
 
 	def update_page(self, name, data, commit_msg):
 		self._update_file(name, 'pages', '%s.markdown' % name.encode('utf-8'), data, commit_msg)
