@@ -8,7 +8,7 @@ import stat
 import time
 
 from dulwich.repo import Repo
-from dulwich.objects import Blob, Commit, parse_timezone
+from dulwich.objects import Blob, Commit, Tree, parse_timezone
 
 # regular file, default permissions of rw-r--r--
 _git_default_file_mode = stat.S_IFREG | stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
@@ -77,12 +77,17 @@ class WikiDb(object):
 		blob = Blob.from_string(data.encode('utf-8'))
 
 		# fetch the old tree object, add new page
-		pages_tree = _walk_git_repo_tree(self.repo, self.current_tree, subdir)
-		pages_tree.add(_git_default_file_mode, filename, blob.id)
+		try:
+			subdir_tree = _walk_git_repo_tree(self.repo, self.current_tree, subdir)
+		except KeyError:
+			# we need to create the subdir_tree as well, since it does not exist
+			# yet
+			subdir_tree = Tree()
+		subdir_tree.add(_git_default_file_mode, filename, blob.id)
 
 		# create new root tree
 		tree = self.current_tree
-		tree.add(stat.S_IFDIR, subdir, pages_tree.id)
+		tree.add(stat.S_IFDIR, subdir, subdir_tree.id)
 
 		# create commit
 		commit = Commit()
@@ -96,7 +101,7 @@ class WikiDb(object):
 
 		# store all objects
 		self.repo.object_store.add_object(blob)
-		self.repo.object_store.add_object(pages_tree)
+		self.repo.object_store.add_object(subdir_tree)
 		self.repo.object_store.add_object(tree)
 		self.repo.object_store.add_object(commit)
 
