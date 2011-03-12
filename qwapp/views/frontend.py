@@ -66,7 +66,8 @@ def show_special(name = 'index'):
 	try:
 		page = current_app.db.get_special(name)
 	except FileNotFoundException:
-		redirect(url_for('edit_special', name = name))
+		return redirect(url_for('edit_special', name = name))
+
 	return render_template('page.html', body = page, title = special_names[name], edit_link = url_for('edit_special', name = name))
 
 
