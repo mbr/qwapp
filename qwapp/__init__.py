@@ -16,7 +16,7 @@ def create_app(configuration_file = None):
 	# load a default config, and from configuration file
 	app.config.from_object(defaults)
 	if configuration_file:
-		app.config.from_file(configuration_file)
+		app.config.from_pyfile(configuration_file)
 
 	app.db = WikiDb(app.config['REPOSITORY_PATH'])
 	app.md = Markdown(app, safe_mode = False, extensions = ['wikilinks'], extension_configs = { 'wikilinks': [('build_url', lambda name, base, end: url_for('show_page', name = name))] })
