@@ -134,6 +134,10 @@ def delete_page(name):
 
 	if form.validate_on_submit():
 		current_app.db.delete_page(name)
+
+		# invalidate cache
+		current_app.cache.delete('view/%s' % url_for('show_page', name = name))
+		current_app.cache.delete('view/%s' % url_for('list_pages'))
 		return redirect(url_for('show_special', name = 'index'))
 
 	return render_template('deletepage.html', form = form, title = name)
