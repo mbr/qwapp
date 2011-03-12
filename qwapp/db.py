@@ -72,6 +72,40 @@ class WikiDb(object):
 
 		return email.utils.formataddr((user, addr))
 
+	def delete_file(self, subdir, filename, commit_msg):
+		try:
+			subdir_tree = _walk_git_repo_tree(self.repo, self.current_tree, subdir)
+		except KeyError:
+			raise FileNotFoundException('No subdir named %r' % subdir)
+		if not filename in subdir_tree: raise FileNotFoundException('%r not in %s' % (filename, subdir))
+		del subdir_tree[filename]
+
+		# create new root tree
+		tree = self.current_tree
+		tree.add(stat.S_IFDIR, subdir, subdir_tree.id)
+
+		# create commit
+		# FIXME: factor this out!
+		commit = Commit()
+		commit.parents = [self.current_commit.id]
+		commit.tree = tree.id
+		commit.author = commit.committer = self.wiki_user
+		commit.commit_time =  commit.author_time = int(time.time())
+		commit.commit_timezone = commit.author_timezone = parse_timezone(time.timezone)[0]
+		commit.encoding = 'UTF-8'
+		commit.message = commit_msg.encode('utf-8')
+
+		# store all objects
+		self.repo.object_store.add_object(subdir_tree)
+		self.repo.object_store.add_object(tree)
+		self.repo.object_store.add_object(commit)
+
+		# update the branch
+		self.repo.refs[self.head] = commit.id
+
+	def delete_page(self, name):
+		return self.delete_file('pages', '%s.markdown' % name, u'Deleted page "%s"' % name)
+
 	def get_file(self, path):
 		try:
 			return _walk_git_repo_tree(self.repo, self.current_tree, path).as_raw_string()
