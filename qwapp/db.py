@@ -10,6 +10,9 @@ import time
 from dulwich.repo import Repo
 from dulwich.objects import Blob, Commit, parse_timezone
 
+# regular file, default permissions of rw-r--r--
+_git_default_file_mode = stat.S_IFREG | stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
+
 
 def _walk_git_repo_tree(repo, tree, path):
 	for part in path.split('/'):
@@ -63,12 +66,9 @@ class WikiDb(object):
 		# first, create a new blob for the data
 		blob = Blob.from_string(data.encode('utf-8'))
 
-		# regular file, default permissions of rw-r--r--
-		mode = stat.S_IFREG | stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
-
 		# fetch the old tree object, add new page
 		pages_tree = _walk_git_repo_tree(self.repo, self.current_tree, subdir)
-		pages_tree.add(mode, filename, blob.id)
+		pages_tree.add(_git_default_file_mode, filename, blob.id)
 
 		# create new root tree
 		tree = self.current_tree
