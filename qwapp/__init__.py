@@ -144,7 +144,3 @@ def show_page(name):
 	except FileNotFoundException:
 		return redirect(url_for('edit_page', name = name))
 	return render_template('page.html', body = page, title = name, edit_link = url_for('edit_page', name = name))
-
-
-if '__main__' == __name__:
-	app.run(use_debugger = True, use_reloader = True)
