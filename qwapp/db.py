@@ -31,6 +31,28 @@ class WikiDb(object):
 		self.repo = Repo(repopath)
 		self.head = head
 
+		if not self.head in self.repo.refs:
+			self.reset_repo()
+
+	def reset_repo(self):
+		# ensure head exists
+			tree = Tree()
+
+			commit = Commit()
+			commit.tree = tree.id
+			commit.author = commit.committer = self.wiki_user
+			commit.commit_time = commit.author_time = int(time.time())
+			commit.commit_timezone = commit.author_timezone = parse_timezone(time.timezone)[0]
+			commit.encoding = 'UTF-8'
+			commit.message = u'Automatic initalization by qwapp.'.encode('utf-8')
+
+			# store all objects
+			self.repo.object_store.add_object(tree)
+			self.repo.object_store.add_object(commit)
+
+			# update the branch
+			self.repo.refs[self.head] = commit.id
+
 	@property
 	def current_commit(self):
 		head = self.repo.refs[self.head]
