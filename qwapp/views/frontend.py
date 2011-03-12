@@ -89,7 +89,7 @@ def edit_special(name):
 			current_app.db.update_special(name, form.body.data, form.commit_msg.data)
 
 			# invalidate cache
-			cache.delete('view/%s' % url_for('show_special', name = name))
+			current_app.cache.delete('view/%s' % url_for('show_special', name = name))
 			return redirect(url_for('show_special', name = name))
 
 	return render_template('editpage.html', form = form, preview = preview)
@@ -115,8 +115,8 @@ def edit_page(name):
 			current_app.db.update_page(name, form.body.data, form.commit_msg.data)
 
 			# redirect to page view
-			cache.delete('view/%s' % url_for('show_page', name = name))
-			cache.delete('view/%s' % url_for('list_pages'))
+			current_app.cache.delete('view/%s' % url_for('show_page', name = name))
+			current_app.cache.delete('view/%s' % url_for('list_pages'))
 			return redirect(url_for('show_page', name = name))
 
 	return render_template('editpage.html', form = form, preview = preview)
