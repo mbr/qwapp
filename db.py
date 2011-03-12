@@ -75,7 +75,10 @@ class WikiDb(object):
 		tree.add(stat.S_IFDIR, subdir, pages_tree.id)
 
 		# create commit
-		user = os.getlogin()
+		try:
+			user = os.getlogin()
+		except OSError:
+			user = 'wiki.unknown'
 		addr = '%s@%s' % (user, socket.gethostname())
 
 		commit = Commit()
