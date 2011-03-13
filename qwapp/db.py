@@ -15,7 +15,7 @@ _git_default_file_mode = stat.S_IFREG | stat.S_IRUSR | stat.S_IWUSR | stat.S_IRG
 
 
 def _walk_git_repo_tree(repo, tree, path):
-	for part in path.split('/'):
+	for part in path.encode('utf-8').split('/'):
 		mode, sha = tree[part]
 		if mode & stat.S_IFDIR:
 			tree = repo[sha]
