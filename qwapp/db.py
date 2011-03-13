@@ -104,7 +104,7 @@ class WikiDb(object):
 		self.repo.refs[self.head] = commit.id
 
 	def delete_page(self, name):
-		return self.delete_file('pages', '%s.markdown' % name, u'Deleted page "%s"' % name)
+		return self.delete_file('pages', ('%s.markdown' % name).encode('utf-8'), u'Deleted page "%s"' % name)
 
 	def get_file(self, path):
 		try:
