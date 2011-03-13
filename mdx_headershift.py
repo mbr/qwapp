@@ -22,14 +22,14 @@ class HeaderShiftProcessor(markdown.treeprocessors.Treeprocessor):
 class HeadershiftExtension(markdown.Extension):
 	def __init__(self, configs):
 		self.config = {
-			'shift_amount': 2,
+			'shift_amount': [2, 'How many levels to shift headers down.'],
 		}
 
 		for key, value in configs:
 			self.setConfig(key, value)
 
 	def extendMarkdown(self, md, md_globals):
-		md.treeprocessors.add('headershift', HeaderShiftProcessor(self.config['shift_amount'], md), '_end')
+		md.treeprocessors.add('headershift', HeaderShiftProcessor(self.getConfig('shift_amount'), md), '_end')
 
 
 def makeExtension(configs = None):
