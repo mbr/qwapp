@@ -22,9 +22,10 @@ def create_app(configuration_file = None):
 
 	app.db = WikiDb(app.config['REPOSITORY_PATH'])
 
-	app.md = Markdown(app, safe_mode = False)
-	app.md.register_extension(HeadershiftExtension, {'shift_amount': 1})
-	app.md.register_extension(WikiLinks2Extension, {'build_href': lambda target, label: url_for('show_page', name = target)})
+	app.md = Markdown(app, safe_mode = False, extensions = [
+		HeadershiftExtension({'shift_amount': 1}.items()),
+		WikiLinks2Extension({'build_href': lambda target, label: url_for('show_page', name = target)}.items()),
+	])
 	app.cache = Cache(app)
 
 	app.register_module(frontend)
