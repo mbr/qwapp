@@ -34,7 +34,7 @@ def build_href(target, label):
 
 
 class Wikilinks2Extension(markdown.Extension):
-	WIKI_RE = r'\[\[(.*?)(?:\|(.*?))?\]\]([^\s.:;!?"]*)'
+	WIKI_RE = r'\[\[(.*?)(?:\|(.*?))?\]\]([^\s.:;!?"*]*)'
 
 	def __init__(self, configs):
 		self.config = {
