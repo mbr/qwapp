@@ -33,10 +33,10 @@ def build_href(target, label):
 	return '/LINK:' + target
 
 
-class Wikilinks2Extension(markdown.Extension):
+class WikiLinks2Extension(markdown.Extension):
 	WIKI_RE = r'\[\[(.*?)(?:\|(.*?))?\]\]([^\s.:;!?"*]*)'
 
-	def __init__(self, configs):
+	def __init__(self, configs = []):
 		self.config = {
 			'build_href': [build_href, 'A callback that given target and label, constructs a URL'],
 			'build_link': [build_link, 'A callback that constructs a link element using ElementTree from the label, href, title and class attributes.'],
@@ -52,4 +52,4 @@ class Wikilinks2Extension(markdown.Extension):
 
 
 def makeExtension(configs = None):
-	return Wikilinks2Extension(configs = configs)
+	return WikiLinks2Extension(configs = configs)

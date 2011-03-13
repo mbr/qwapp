@@ -9,6 +9,8 @@ from qwapp.views.frontend import frontend
 import defaults
 
 from db import WikiDb
+from mdx.mdx_headershift import HeadershiftExtension
+from mdx.mdx_wikilinks2 import WikiLinks2Extension
 
 def create_app(configuration_file = None):
 	app = Flask(__name__)
@@ -19,7 +21,10 @@ def create_app(configuration_file = None):
 		app.config.from_pyfile(configuration_file)
 
 	app.db = WikiDb(app.config['REPOSITORY_PATH'])
-	app.md = Markdown(app, safe_mode = False, extensions = ['wikilinks2', 'headershift'], extension_configs = { 'wikilinks2': [('build_href', lambda target, label: url_for('show_page', name = target))], 'headershift': [('shift_amount', 1)] })
+
+	app.md = Markdown(app, safe_mode = False)
+	app.md.register_extension(HeadershiftExtension, {'shift_amount': 1})
+	app.md.register_extension(WikiLinks2Extension, {'build_href': lambda target, label: url_for('show_page', name = target)})
 	app.cache = Cache(app)
 
 	app.register_module(frontend)
