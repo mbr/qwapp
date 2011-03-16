@@ -3,13 +3,20 @@
 {% block title %}{{title}}{% endblock %}
 
 {% block body %}
-<a href="{{edit_link}}" title="edit {{title}}">edit</a> |
-{% if delete_link %}<a href="{{delete_link}}" title="edit {{title}}">delete</a> |{%endif %}
-<a href="{{url_for('show_special', name = 'index')}}" title="index page">home</a> |
-<a href="{{url_for('list_pages')}}" title="list all page">list</a>
-<hr>
+<div id="menubar">
+<ul>
+<li><a href="{{url_for('show_special', name = 'index')}}" title="index page">{{config['WIKI_NAME']}}</a></li>
+<li class="last"><a href="{{url_for('list_pages')}}" title="list all page">list all pages</a></li>
+</ul>
+</div>
+<div id="titlebar">
 <h1>{{title}}</h1>
-<div>
+<ul id="page_menu">
+<li{% if not delete_link %} class="last"{% endif %}><a href="{{edit_link}}" title="edit {{title}}">edit</a></li>
+{% if delete_link %}<li class="last"><a href="{{delete_link}}" title="edit {{title}}">delete</a></li>{%endif %}
+</ul>
+</div>
+<div id="page_content">
 {{body|markdown}}
 </div>
 
