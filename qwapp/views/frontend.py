@@ -60,7 +60,7 @@ def list_pages():
 @cached
 def show_special(name = 'index'):
 	special_names = {
-		'index': 'Welcome',
+		'index': current_app.config['WIKI_NAME'],
 	}
 
 	try:
