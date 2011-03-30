@@ -12,3 +12,5 @@ CACHE_THRESHOLD = 200
 CACHE_DEFAULT_TIMEOUT = 50 # 50 seconds default cache timeout
 CACHE_KEY_PREFIX = PASSWORD_HASH[:10]
 
+# no plugins loaded by default
+PLUGINS = []
