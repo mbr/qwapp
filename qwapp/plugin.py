@@ -6,6 +6,10 @@ from functools import wraps
 class Plugin(object):
 	def __init__(self, name = 'Unnamed plugin', author = 'Unnamed author', description = 'No description', version = (0, 1)):
 		self.signal_map = {}
+		self.name = name
+		self.author = author
+		self.description = description
+		self.version = version
 
 	def on_signal(self, signal_name):
 		def wrap_func(f):
@@ -22,3 +26,7 @@ class Plugin(object):
 
 		app.plugin_signals['plugin-loaded'].send(self)
 		app.plugins.append(self)
+
+	@property
+	def version_string(self):
+		return u'%s %s' % (self.name, '.'.join(str(v) for v in self.version))
