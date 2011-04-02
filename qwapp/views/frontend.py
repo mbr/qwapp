@@ -8,6 +8,13 @@ from flask import Module, render_template, abort, url_for, redirect, session, cu
 from ..db import FileNotFoundException
 from .. import password, forms
 
+
+class RenderPage(object):
+	def __init__(self, title, body):
+		self.title = title
+		self.body = body
+
+
 frontend = Module(__name__)
 
 def require_login(f):
@@ -64,11 +71,12 @@ def show_special(name = 'index'):
 	}
 
 	try:
-		page = current_app.db.get_special(name)
+		body = current_app.db.get_special(name)
+		page = RenderPage(special_names[name], body)
 	except FileNotFoundException:
 		return redirect(url_for('edit_special', name = name))
 
-	return render_template('page.html', body = page, title = special_names[name], edit_link = url_for('edit_special', name = name))
+	return render_template('page.html', body = page.body, title = page.title, edit_link = url_for('edit_special', name = name))
 
 
 @frontend.route('/s/<name>/edit/', methods = ('GET', 'POST'))
@@ -148,7 +156,8 @@ def delete_page(name):
 @cached
 def show_page(name):
 	try:
-		page = current_app.db.get_page(name)
+		body = current_app.db.get_page(name)
+		page = RenderPage(name, body)
 	except FileNotFoundException:
 		return redirect(url_for('edit_page', name = name))
-	return render_template('page.html', body = page, title = name, edit_link = url_for('edit_page', name = name), delete_link = url_for('delete_page', name = name))
+	return render_template('page.html', body = page.body, title = page.title, edit_link = url_for('edit_page', name = name), delete_link = url_for('delete_page', name = name))
