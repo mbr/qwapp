@@ -45,6 +45,7 @@ def create_app(configuration_file = None):
 
 		qwappplugin = __import__('qwappplugin.%s' % plugin_name)
 		plugin_module = getattr(qwappplugin, plugin_name)
+		app.logger.debug('loading plugin %s' % plugin_module.plugin.version_string)
 
 		plugin_module.plugin.register_app(app)
 
