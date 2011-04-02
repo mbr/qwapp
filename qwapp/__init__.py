@@ -20,6 +20,8 @@ def create_app(configuration_file = None):
 	# cannot use namespace here, weak signals will disappear
 	app.plugin_signals = {
 		'plugin-loaded': Signal(),
+		'page-loaded': Signal(),
+		'special-loaded': Signal(),
 	}
 
 	# load a default config, and from configuration file

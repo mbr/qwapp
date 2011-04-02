@@ -73,6 +73,7 @@ def show_special(name = 'index'):
 	try:
 		body = current_app.db.get_special(name)
 		page = RenderPage(special_names[name], body)
+		current_app.plugin_signals['special-loaded'].send(current_app._get_current_object(), page = page)
 	except FileNotFoundException:
 		return redirect(url_for('edit_special', name = name))
 
@@ -158,6 +159,7 @@ def show_page(name):
 	try:
 		body = current_app.db.get_page(name)
 		page = RenderPage(name, body)
+		current_app.plugin_signals['page-loaded'].send(current_app._get_current_object(), page = page)
 	except FileNotFoundException:
 		return redirect(url_for('edit_page', name = name))
 	return render_template('page.html', body = page.body, title = page.title, edit_link = url_for('edit_page', name = name), delete_link = url_for('delete_page', name = name))
