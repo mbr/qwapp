@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+# coding=utf8
+
+from functools import wraps
+
+class Plugin(object):
+	def __init__(self, name = 'Unnamed plugin', author = 'Unnamed author', description = 'No description', version = (0, 1)):
+		self.signal_map = {}
+
+	def on_signal(self, signal_name):
+		def wrap_func(f):
+			self.signal_map.setdefault(signal_name, []).append(f)
+			return f
+
+		return wrap_func
+
+	def register_app(self, app):
+		for signal_name, receivers in self.signal_map.iteritems():
+			sig = app.plugin_signals[signal_name]
+			for f in receivers:
+				sig.connect(f)
+
+		app.plugin_signals['plugin-loaded'].send(self)
+		app.plugins.append(self)
