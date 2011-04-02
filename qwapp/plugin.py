@@ -30,7 +30,7 @@ class Plugin(object):
 			for f in receivers:
 				sig.connect(f)
 
-		app.plugin_signals['plugin-loaded'].send(self)
+		app.plugin_signals['plugin-loaded'].send(self, app = app)
 		app.plugins.append(self)
 
 	@property
