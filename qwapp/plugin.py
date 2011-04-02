@@ -2,6 +2,12 @@
 # coding=utf8
 
 from functools import wraps
+import re
+
+BLOCK_EXPRESSION = r'\[{\s*(%s)\b(.*)}\]'
+
+def make_block_expression(name):
+	return re.compile(BLOCK_EXPRESSION % name, re.S)
 
 class Plugin(object):
 	def __init__(self, name = 'Unnamed plugin', author = 'Unnamed author', description = 'No description', version = (0, 1)):
