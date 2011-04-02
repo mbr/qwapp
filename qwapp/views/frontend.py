@@ -2,20 +2,34 @@
 # coding=utf8
 
 from functools import wraps
+from uuid import uuid4
 
 from flask import Module, render_template, abort, url_for, redirect, session, current_app, request, abort
 
 from ..db import FileNotFoundException
 from .. import password, forms
+from ..plugin import make_block_expression
 
 
 class RenderPage(object):
 	def __init__(self, title, body):
 		self.title = title
 		self.body = body
+		self.blocks = {}
+
+	def extract_blocks(self, blockname):
+		self.blocks[blockname] = []
+		exp = make_block_expression(blockname)
+		self.body = exp.sub(self._handle_block_match, self.body)
+
+	def _handle_block_match(self, m):
+		id = uuid4()
+		self.blocks[m.group(1)].append((id.hex, m.group(2)))
+		return id.hex
 
 
 frontend = Module(__name__)
+
 
 def require_login(f):
 	@wraps(f)
