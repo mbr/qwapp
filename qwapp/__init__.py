@@ -3,8 +3,8 @@
 
 from flask import Flask, g, url_for
 from flaskext.cache import Cache
-import flask.signals
 from flaskext.markdown import Markdown
+from blinker import Signal
 from qwapp.views.frontend import frontend
 
 import defaults
@@ -15,7 +15,12 @@ from mdx.mdx_wikilinks2 import WikiLinks2Extension
 
 def create_app(configuration_file = None):
 	app = Flask(__name__)
-	app.plugin_signals = flask.signals.Namespace()
+	app.plugins = []
+
+	# cannot use namespace here, weak signals will disappear
+	app.plugin_signals = {
+		'plugin-loaded': Signal(),
+	}
 
 	# load a default config, and from configuration file
 	app.config.from_object(defaults)
