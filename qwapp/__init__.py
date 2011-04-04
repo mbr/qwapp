@@ -19,6 +19,8 @@ def create_app(configuration_file = None):
 		'plugin-loaded': Signal(),
 		'page-loaded': Signal(),
 		'special-loaded': Signal(),
+		'page-preprocess': Signal(),
+		'page-postprocess': Signal(),
 	}
 
 	# load a default config, and from configuration file

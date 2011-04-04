@@ -5,6 +5,7 @@ from functools import wraps
 from uuid import uuid4
 
 from flask import Module, render_template, abort, url_for, redirect, session, current_app, request, abort
+import markdown2
 
 from ..db import FileNotFoundException
 from .. import password, forms
@@ -26,6 +27,14 @@ class RenderPage(object):
 		id = uuid4()
 		self.blocks[m.group(1)].append((id.hex, m.group(2)))
 		return id.hex
+
+	def process(self):
+		# two stages: before and after markdown processing
+		current_app.plugin_signals['page-preprocess'].send(self)
+		# FIXME: process wiki links
+		self.body = markdown2.markdown(self.body)
+		# FIXME: missing headershift
+		current_app.plugin_signals['page-postprocess'].send(self)
 
 
 frontend = Module(__name__)
@@ -88,6 +97,7 @@ def show_special(name = 'index'):
 		body = current_app.db.get_special(name)
 		page = RenderPage(special_names[name], body)
 		current_app.plugin_signals['special-loaded'].send(current_app._get_current_object(), page = page)
+		page.process()
 	except FileNotFoundException:
 		return redirect(url_for('edit_special', name = name))
 
@@ -103,11 +113,13 @@ def edit_special(name):
 		page = None
 
 	form = forms.EditPageForm(body = page)
-	preview = None
+	preview_body = None
 
 	if form.validate_on_submit():
 		if form.preview.data:
-			preview = form.body.data
+			preview = RenderPage('Preview', form.body.data)
+			preview.process()
+			preview_body = preview.body
 		else:
 			current_app.db.update_special(name, form.body.data, form.commit_msg.data)
 
@@ -115,7 +127,7 @@ def edit_special(name):
 			current_app.cache.delete('view/%s' % url_for('show_special', name = name))
 			return redirect(url_for('show_special', name = name))
 
-	return render_template('editpage.html', form = form, preview = preview)
+	return render_template('editpage.html', form = form, preview = preview_body)
 
 
 @require_login
@@ -127,12 +139,14 @@ def edit_page(name):
 		page = None
 
 	form = forms.EditPageForm(body = page)
-	preview = None
+	preview_body = None
 
 	if form.validate_on_submit():
 		if form.preview.data:
 			# simply display preview
-			preview = form.body.data
+			preview = RenderPage('Preview', form.body.data)
+			preview.process()
+			preview_body = preview.body
 		else:
 			# save the new page
 			current_app.db.update_page(name, form.body.data, form.commit_msg.data)
@@ -142,7 +156,7 @@ def edit_page(name):
 			current_app.cache.delete('view/%s' % url_for('list_pages'))
 			return redirect(url_for('show_page', name = name))
 
-	return render_template('editpage.html', form = form, preview = preview)
+	return render_template('editpage.html', form = form, preview = preview_body)
 
 
 @require_login
@@ -174,6 +188,7 @@ def show_page(name):
 		body = current_app.db.get_page(name)
 		page = RenderPage(name, body)
 		current_app.plugin_signals['page-loaded'].send(current_app._get_current_object(), page = page)
+		page.process()
 	except FileNotFoundException:
 		return redirect(url_for('edit_page', name = name))
 	return render_template('page.html', body = page.body, title = page.title, edit_link = url_for('edit_page', name = name), delete_link = url_for('delete_page', name = name))

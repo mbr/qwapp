@@ -11,6 +11,6 @@ setup(name = 'qwapp',
       packages = ['qwapp', 'qwapp.views', 'qwappplugin'],
       package_data = {'qwapp': ['static/css/*.css', 'templates/*.html']},
       namespace_packages = ['qwappplugin'],
-      install_requires = ['flask', 'dulwich', 'flask', 'Flask-Cache', 'Flask-WTF', 'blinker'],
+      install_requires = ['flask', 'dulwich', 'markdown2', 'Flask-Cache', 'Flask-WTF', 'blinker'],
       zip_safe=False,
      )
