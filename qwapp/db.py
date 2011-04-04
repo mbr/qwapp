@@ -117,6 +117,16 @@ class WikiDb(object):
 	def get_special(self, name):
 		return self.get_file('special/%s.markdown' % name).decode('utf-8')
 
+	def has_file(self, path):
+		try:
+			_walk_git_repo_tree(self.repo, self.current_tree, path)
+			return True
+		except KeyError:
+			return False
+
+	def has_page(self, name):
+		return self.has_file('pages/%s.markdown' % name)
+
 	def list_pages(self):
 		mode, pages_sha = self.current_tree['pages']
 		for name, mode, sha in self.repo[pages_sha].iteritems():
