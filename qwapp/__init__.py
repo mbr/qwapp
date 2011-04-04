@@ -20,6 +20,7 @@ def create_app(configuration_file = None):
 		'page-loaded': Signal(),
 		'special-loaded': Signal(),
 		'page-preprocess': Signal(),
+		'page-postmarkdown': Signal(),
 		'page-treeprocess': Signal(),
 		'page-postprocess': Signal(),
 	}

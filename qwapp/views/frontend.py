@@ -33,10 +33,9 @@ class RenderPage(object):
 		return id.hex
 
 	def process(self):
-		# three stages: pre, tree, post
 		current_app.plugin_signals['page-preprocess'].send(self)
-		# FIXME: process wiki links
 		self.body = '<div class="pagebody">%s</div>' % markdown2.markdown(self.body)
+		current_app.plugin_signals['page-postmarkdown'].send(self)
 
 		# convert body to XML tree
 		self.body = ET.XML(self.body)
