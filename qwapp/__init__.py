@@ -3,15 +3,12 @@
 
 from flask import Flask, g, url_for
 from flaskext.cache import Cache
-from flaskext.markdown import Markdown
 from blinker import Signal
 from qwapp.views.frontend import frontend
 
 import defaults
 
 from db import WikiDb
-from mdx.mdx_headershift import HeadershiftExtension
-from mdx.mdx_wikilinks2 import WikiLinks2Extension
 
 def create_app(configuration_file = None):
 	app = Flask(__name__)
@@ -30,11 +27,6 @@ def create_app(configuration_file = None):
 		app.config.from_pyfile(configuration_file)
 
 	app.db = WikiDb(app.config['REPOSITORY_PATH'])
-
-	app.md = Markdown(app, safe_mode = False, extensions = [
-		HeadershiftExtension({'shift_amount': 1}.items()),
-		WikiLinks2Extension({'build_href': lambda target, label: url_for('show_page', name = target)}.items()),
-	])
 	app.cache = Cache(app)
 
 	app.register_module(frontend)
