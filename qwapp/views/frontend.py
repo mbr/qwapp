@@ -142,6 +142,7 @@ def edit_special(name):
 @require_login
 @frontend.route('/<name>/edit/', methods = ('GET', 'POST'))
 def edit_page(name):
+	# FIXME: invalidate caches on edit, so that link coloring works as expected
 	try:
 		page = current_app.db.get_page(name)
 	except FileNotFoundException:

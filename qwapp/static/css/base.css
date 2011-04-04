@@ -83,3 +83,7 @@ body {
 #page_content {
 	margin-left: 2em;
 }
+
+a.qwapp_new_page {
+	color: #cc0000;
+}
