@@ -3,6 +3,10 @@
 
 from functools import wraps
 from uuid import uuid4
+try:
+	import xml.etree.cElementTree as ET
+except ImportError:
+	import xml.etree.ElementTree as ET
 
 from flask import Module, render_template, abort, url_for, redirect, session, current_app, request, abort
 import markdown2
@@ -29,11 +33,17 @@ class RenderPage(object):
 		return id.hex
 
 	def process(self):
-		# two stages: before and after markdown processing
+		# three stages: pre, tree, post
 		current_app.plugin_signals['page-preprocess'].send(self)
 		# FIXME: process wiki links
-		self.body = markdown2.markdown(self.body)
-		# FIXME: missing headershift
+		self.body = '<div class="pagebody">%s</div>' % markdown2.markdown(self.body)
+
+		# convert body to XML tree
+		self.body = ET.XML(self.body)
+		current_app.plugin_signals['page-treeprocess'].send(self)
+
+		# output final result (before postprocessing)
+		self.body = ET.tostring(self.body, 'utf-8')
 		current_app.plugin_signals['page-postprocess'].send(self)
 
 
