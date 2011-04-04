@@ -6,11 +6,6 @@ try:
 except ImportError:
 	from StringIO import StringIO
 
-try:
-	import xml.etree.cElementTree as ET
-except ImportError:
-	import xml.etree.ElementTree as ET
-
 from flask import current_app
 
 from qwapp.plugin import Plugin
