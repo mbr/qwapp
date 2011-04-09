@@ -34,11 +34,11 @@ class RenderPage(object):
 
 	def process(self):
 		current_app.plugin_signals['page-preprocess'].send(self)
-		self.body = '<div class="pagebody">%s</div>' % markdown2.markdown(self.body)
+		self.body = u'<div class="pagebody">%s</div>' % markdown2.markdown(self.body)
 		current_app.plugin_signals['page-postmarkdown'].send(self)
 
 		# convert body to XML tree
-		self.body = ET.XML(self.body)
+		self.body = ET.XML(self.body.encode('utf-8'))
 		current_app.plugin_signals['page-treeprocess'].send(self)
 
 		# output final result (before postprocessing)
