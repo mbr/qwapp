@@ -36,9 +36,10 @@ def insert_wikilink_tags(page):
 def transform_links(page):
 	for elem in page.body.getiterator('wikilink'):
 		label, taget = page.wikilinks[elem.get('id')]
-		elem.clear()
+		# do not clear element - this would remove the tail
 		elem.tag = 'a'
 		elem.text = label
+		del elem.attrib['id']
 		elem.set('title', label)
 		elem.set('href', url_for('show_page', name = label))
 		class_ = 'qwapp_link'
