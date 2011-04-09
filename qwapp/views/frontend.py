@@ -42,7 +42,7 @@ class RenderPage(object):
 		current_app.plugin_signals['page-treeprocess'].send(self)
 
 		# output final result (before postprocessing)
-		self.body = ET.tostring(self.body, 'utf-8')
+		self.body = ET.tostring(self.body, 'utf-8').decode('utf-8')
 		current_app.plugin_signals['page-postprocess'].send(self)
 
 
