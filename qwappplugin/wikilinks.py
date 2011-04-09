@@ -10,7 +10,7 @@ from qwapp.plugin import Plugin, ET
 
 plugin = Plugin('Wiki-style links', author = 'Marc Brinkmann', description = 'Adds support for [[WikipediaStyle]] links.', version = (0,1))
 
-WIKI_EXP = r'\[\[(.*?)(?:\|(.*?))?\]\]([^\s.:;!?"*]*)'
+WIKI_EXP = r'\[\[(.*?)(?:\|(.*?))?\]\]([^\s,.:;!?"*]*)'
 WIKI_RE = re.compile(WIKI_EXP)
 
 @plugin.on_signal('page-preprocess')
