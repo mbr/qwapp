@@ -9,7 +9,7 @@ try:
 except ImportError:
 	import xml.etree.ElementTree as ET
 
-BLOCK_EXPRESSION = r'\[{\s*(%s)\b(.*)}\]'
+BLOCK_EXPRESSION = r'\[{\s*(%s)\b(.*?)\s*}\]'
 
 def make_block_expression(name):
 	return re.compile(BLOCK_EXPRESSION % name, re.S)
