@@ -9,7 +9,12 @@ except ImportError:
 	import xml.etree.ElementTree as ET
 
 from flask import Module, render_template, abort, url_for, redirect, session, current_app, request, abort
-import markdown2
+
+# FIXME: Until
+# https://github.com/trentm/python-markdown2/issues/61
+# is resolved, certain markdown can break page rendering
+import markdown as markdown2
+#import markdown2
 
 from ..db import FileNotFoundException
 from .. import password, forms
