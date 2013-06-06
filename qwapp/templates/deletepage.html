@@ -5,7 +5,7 @@
 {% block body %}
 Do you really want to delete the page &quot;{{title}}&quot;?
 <form action="." method="post">
-{{form.csrf}}
+{{form.csrf_token}}
 {{form.delete_button}}
 </form>
 {% endblock %}
