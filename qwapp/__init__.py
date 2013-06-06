@@ -2,7 +2,7 @@
 # coding=utf8
 
 from flask import Flask, g, url_for
-from flaskext.cache import Cache
+from flask.ext.cache import Cache
 from blinker import Signal
 from qwapp.views.frontend import frontend
 

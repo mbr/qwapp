@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf8
 
-from flaskext.wtf import Form, TextField, Required, TextAreaField, SubmitField, PasswordField
+from flask.ext.wtf import Form, TextField, Required, TextAreaField, SubmitField, PasswordField
 
 class EditPageForm(Form):
 	body = TextAreaField(u'Page contents', validators = [Required()])
